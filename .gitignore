@@ -1,2 +1,3 @@
 img/*
+!img/watchstock.png
 php/db_core.php
