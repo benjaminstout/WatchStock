@@ -2,7 +2,7 @@ WatchStock
 ==========
 ###An Intuitive Stock Quote Website
 
-![alt tag](img/watchstock.png)
+![WatchStock](img/ws.png)
 
 #### SUMMARY:
 WatchStock is a stock quote website project created as an educational exercise for my Netcentric Computing class in Spring quarter of 2016. Development began in April of 2016 and concluded two months later in June.
