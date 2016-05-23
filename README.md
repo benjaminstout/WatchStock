@@ -1,4 +1,4 @@
-WatchStock
+[WatchStock](http://stoutb.cs.spu.edu)
 ==========
 ###An Intuitive Stock Quote Website
 
@@ -8,7 +8,7 @@ WatchStock
 WatchStock is a stock quote website project created as an educational exercise for my Netcentric Computing class in Spring quarter of 2016. Development began in April of 2016 and concluded two months later in June.
 
 #### DECRIPTION:
-WatchStock was written from scratch using PHP, HTML, CSS and JavaScript/jQuery. The website as well as its MySQL database is hosted on the cs.spu.edu server. WatchStock is designed to be a single-page user experience using AJAX to handle dynamic content loading during navigation.
+WatchStock was written from scratch using PHP, HTML, CSS and JavaScript/jQuery. The website as well as its MySQL database is hosted on the cs.spu.edu server at [stoutb.cs.spu.edu](http://stoutb.cs.spu.edu). WatchStock is designed to be a single-page user experience using AJAX to handle dynamic content loading during navigation.
 
 #### Dependencies
 
