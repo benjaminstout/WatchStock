@@ -2,39 +2,53 @@
 	//Script to query WatchStock stock items from DB
   //Written by: Benjamin Stout | 2016-05-12
 
-  /*
-  //directory of SMA/IOM data scripts and subfolders
-  $cwd = __DIR__;  //same as current script
-
-  //include DB constants
-  include $cwd . '/db_core.php';
-
-  //open connection to DB
-  $mysql = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME)
-    or die("Database connection failed: ".mysqli_error($mysql)."<br>");
-
-  //get query term
+  // Get query term
   $term = $_GET['query'];
-  //intialize empty json array
-  $json = array();
+  // Get query search flag [true/false]
+  $search = $_GET['search'];
+  // Check for empty parameter
+  if(!empty($term) && !empty($search)){
 
-  if(!empty($term)){
+    // Intialize empty json array
+    $json = array();
+
+    // -----CONNECT TO DB-----
+    //include DB constants
+    include __DIR__ . '/db_core.php';
+    //open connection to DB
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME)
+    // Return connection error
+    if ($mysqli->connect_errno) {
+      // PROD
+      //$json['error'] = $mysqli->connect_errno;
+      // DEBUGGING
+      $json['error'] = $mysqli->connect_error;
+      exit(json_encode($json));
+    }
+
     // -----BUILD QUERY-----
-    $query = '';
-    $response = $mysql->query($query)
+    if(search) $query = 'SELECT symName, symExchange FROM symbols WHERE symExchange LIKE {$term} OR symName LIKE {$term}';
+    else {
+      //type is history
+      //$query = 'SELECT symName, symExchange FROM symbols WHERE symExchange LIKE {$term} OR symName LIKE {$term}';
+      //type is quote
+    }
 
-    //-----BUILD JSON-----
 
+    // -----QUERY DB-----
+    if ($result = $mysqli->query($query)){
+
+      // Parse response and build JSON
+      $json['data'] = array();
+
+      while ($row = $result->fetch_row()) {
+        array_push($json['data'], array($row[0] => $row[1]))
+      }
+
+      /* free result set */
+      $result->close();
+    }
   }
-  */
-  $json = array();
-  $json['result'] = 'list';
-  $json['data'] = array(
-                    'General Electric' => 'GE',
-                    'Facebook' => 'FCBK',
-                    'Google' => 'GOOGL',
-                    'LinkedIn' => 'LNKD'
-                  );
-
-  echo json_encode($json);
+  mysqli->close();
+  exit(json_encode($json));
 ?>
