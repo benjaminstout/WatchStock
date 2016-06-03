@@ -45,6 +45,7 @@ h5 {
   height: 70px;
   background-color: #2a2a2a;
   box-shadow: 0 1px 3px 0 #000;
+  z-index: 1;
 }
 
 .title {
@@ -144,6 +145,7 @@ input[type=text]:focus, textarea:focus {
   height: 200px;
   border: 1px solid transparent;
   border-bottom-right-radius: 76%;
+  z-index: 2;
 }
 
 .nav-arrow {
@@ -305,15 +307,20 @@ input[type=text]:focus, textarea:focus {
   margin-right: auto;
 }
 
-#results {
+#search {
   display: none;
 }
 
-.results-button {
-  width: 40%;
+.buttons {
+  text-align: center;
+  min-width: 140px;
+}
+
+button {
+  width: auto;
   min-width: 60px;
   display: inline-block;
-  margin: 5%;
+  margin: 0px 5px;
   padding: 4px;
   border: 1px;
   border-style: solid;
@@ -328,9 +335,22 @@ input[type=text]:focus, textarea:focus {
   transition: background-color .15s ease-in-out;
 }
 
-.results-button:hover {
-  background-color: #fff;
+button.white {
+  background-color: white;
+  border: 3px;
+  margin: 0px 10px;
   color: #2a2a2a;
+}
+
+button:hover {
+  background-color: white;
+  color: #2a2a2a;
+}
+
+button.white:hover {
+  background-color: transparent;
+  border-color: white;
+  color: white;
 }
 
 #history {
@@ -343,14 +363,15 @@ input[type=text]:focus, textarea:focus {
 
 /*-----TABLE STYLES-----*/
 .table-fill {
+  display: inline-block;
+  vertical-align: top;
   background: white;
   border-radius:3px;
   border-collapse: collapse;
-  height: 320px;
-  margin: auto;
+  height: auto;
+  margin: auto 10px;
   max-width: 600px;
-  padding:5px;
-  width: 100%;
+  width: auto;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
   animation: float 5s infinite;
 }
@@ -363,7 +384,7 @@ th {
   font-family: 'Poiret One', sans-serif;
   font-size: 23px;
   font-weight: 100;
-  padding: 20px;
+  padding: 10px;
   text-align:left;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   vertical-align: middle;

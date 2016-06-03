@@ -4,10 +4,11 @@
 
   // Get query term
   $term = $_GET['query'];
-  // Get query search flag [true/false]
-  $search = $_GET['search'];
-  // Check for empty parameter
-  if(!empty($term) && !empty($search)){
+  // Get query type [search/quote/history]
+  $type = $_GET['type'];
+
+  // Check for empty parameters
+  if(!empty($term) && !empty($type)){
 
     // Intialize empty json array
     $json = array();
@@ -16,7 +17,7 @@
     //include DB constants
     include __DIR__ . '/db_core.php';
     //open connection to DB
-    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME)
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     // Return connection error
     if ($mysqli->connect_errno) {
       // PROD
@@ -27,12 +28,45 @@
     }
 
     // -----BUILD QUERY-----
-    if(search) $query = 'SELECT symName, symExchange FROM symbols WHERE symExchange LIKE {$term} OR symName LIKE {$term}';
-    else {
-      //type is history
-      //$query = 'SELECT symName, symExchange FROM symbols WHERE symExchange LIKE {$term} OR symName LIKE {$term}';
-      //type is quote
-    }
+    if($type == 'search')
+      $query = "SELECT symName AS `name`,
+                      symSymbol AS `symbol`
+                FROM symbols
+                WHERE symName LIKE '%{$term}%' OR symSymbol LIKE '%{$term}%'";
+    else if($type == 'history')
+      $query ="SELECT qQuoteDateTime AS `date`,
+                      qLastSalePrice AS `last`,
+                      qNetChangePrice AS `chng`,
+                      qNetChangePct AS `pctchng`,
+                      qShareVolumeQty AS `vol`
+              FROM quotes
+              WHERE qSymbol='{$term}'
+              ORDER BY qQuoteDateTime DESC";
+    else if($type == 'quote')
+      $query = "SELECT symSymbol,
+                        qQuoteDateTime AS `date`,
+                        qLastSalePrice AS `last`,
+                        qAskPrice  AS `ask`,
+                        qBidPrice  AS `bid`,
+                        q52WeekLow AS `yrlow`,
+                        q52WeekHigh AS `yrhigh`,
+                        qTodaysLow AS `low`,
+                        qTodaysHigh AS `high`,
+                        qNetChangePrice AS `chng`,
+                        qNetChangePct AS `pctchng`,
+                        qShareVolumeQty AS `vol`,
+                        qPreviousClosePrice AS `preclose`,
+                        qCurrentPERatio AS `pe`,
+                        qEarningsPerShare AS `eshare`,
+                        qCashDividendAmount AS `dshare`,
+                        qCurrentYieldPct AS `yield`,
+                        qTotalOutstandingSharesQty AS `shares`,
+                        ROUND(qTotalOutstandingSharesQty*qPreviousClosePrice) AS `cap`
+                FROM symbols
+                LEFT OUTER JOIN quotes ON symSymbol=qSymbol
+                WHERE symSymbol='{$term}'
+                ORDER BY qQuoteDateTime DESC
+                LIMIT 1";
 
 
     // -----QUERY DB-----
@@ -41,14 +75,21 @@
       // Parse response and build JSON
       $json['data'] = array();
 
-      while ($row = $result->fetch_row()) {
-        array_push($json['data'], array($row[0] => $row[1]))
+      while ($row = $result->fetch_object()) {
+        array_push($json['data'], $row);
       }
 
-      /* free result set */
+      // Free result set
       $result->close();
     }
+    else{
+      $json['error'] = $mysqli->error;
+    }
+    // Close mysqli connection
+    $mysqli->close();
   }
-  mysqli->close();
+  else{
+    $json['error'] = 'Invalid request type. Check AJAX parameters.';
+  }
   exit(json_encode($json));
 ?>
