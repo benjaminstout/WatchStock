@@ -51,6 +51,15 @@ function showSection(elem){
   curSection = elem;
 }
 
+//Evaluate if QuickQuote should be shown or not
+function evalQQ(){
+  length = $('#query').val().length
+  if(length >= 1 && length <= 5){
+    $('#qq').fadeTo(250, 0.5);
+  }
+  else{$('#qq').fadeTo(250, 0).promise().done(function(){$('#qq').hide();});}
+}
+
 function highlight(elem){
   $('#navExit, #navSearch, #navHistory, #navQuote').removeClass('highlighted');
   $(elem).addClass('highlighted');
@@ -90,9 +99,14 @@ function rotate(evt){
 }
 
 // -----Search/Query AJAX-----
-function query(term, type){
-  //check for empty string
-  if(term && type && ((type == '#search' && curSearch != term)||(type == '#quote' && curQuote != curStock)||(type == '#history' && curHistory != curStock))){
+function query(term, type, qq=false){
+  //update search box with current stock
+  if (term && $('#query').val() !== term){$('#query').val(term);}
+  //check for valid query, otherwise do nothing
+  if(term && type && ((type === '#search' && curSearch != term)||(type === '#quote' && curQuote != term)||(type === '#history' && curHistory != term))){
+    var table = '';
+    var redirect = false;
+    //begin AJAX
     $.ajax({
       type: 'GET',
       url: 'php/query.php',
@@ -101,11 +115,13 @@ function query(term, type){
       dataType: 'json',
       timeout: 5000,
       success: function(response){
-        if (Object.keys(response)[0] == 'data'){
-          if (type == '#search'){
+        if (response.hasOwnProperty('data')){
+          if (type === '#search'){
             curSearch = term;
-            var table = '<h2>Search Results</h2>'+
-                        '<h3>'+response.data.length+' Results for: '+term+'</h3>';
+            // If redirected from QuickQuote, prepend notice
+            if(qq) table += '<h5>There were no stocks found under the symbol '+term+'. Perhaps you meant to search?</h5>';
+            table += '<h2>Search Results</h2>'+
+                      '<h3>'+response.data.length+' Results for: '+term+'</h3>';
             if(response.data.length != 0){
               table += '<table class="table-fill">'+
                           '<thead>'+
@@ -134,35 +150,23 @@ function query(term, type){
             else {
               table += '<h5>Search returned no results... Try again!</h5>';
             }
-
-            $(curSection).fadeOut().promise().done(function(){
-              // Write table HTML
-              $(type).html(table);
-
-              // Attach button click event handlers
-              $('.quoteButton').click(function(){
-                curCompany = $(this).closest('tr').find('td:eq(0)').text()
-                curStock = $(this).closest('tr').find('td:eq(1)').text()
-                // Query with symbol and type
-                query(curStock, '#quote');
-              });
-              $('.historyButton').click(function(){
-                curCompany = $(this).closest('tr').find('td:eq(0)').text()
-                curStock = $(this).closest('tr').find('td:eq(1)').text()
-                query(curStock, '#history');
-              });
-            });
           }
-          else if (type == '#quote'){
-            curQuote = curStock;
+          else if (type === '#quote'){
+            curQuote = term;
+            //Set company name and symbol if quick quote
+            if(qq && response.data.length != 0){
+              curStock = response.data[0].symbol;
+              curCompany = response.data[0].name;
+            }
 
-            var table = '<h2>Quote</h2>'+
-                        '<h3>'+curStock+': '+curCompany+'</h3>'+
-                        '<div class=buttons>'+
-                          '<button class="goSearchButton white">Search Results</button>'+
-                          '<button class="goHistoryButton white">Stock History</button>'+
-                        '</div><br></br>';
+            table += '<h2>Quote</h2>'+
+                      '<h3>'+curQuote+': '+curCompany+'</h3>'+
+                      '<div class=buttons>'+
+                        '<button class="goSearchButton white">Search Results</button>'+
+                        '<button class="goHistoryButton white">Stock History</button>'+
+                      '</div><br></br>';
             if(response.data.length != 0){
+              curStock = curQuote;
               result = response.data[0];
               table += '<table class="table-fill">'+
                       '<thead>'+
@@ -243,19 +247,26 @@ function query(term, type){
                         '</tr>'+
                       '</tbody>'+
                     '</table>';
-                  }
-                  else{
-                    table += '<h5>There is no quote available for '+curStock+'</h5>';
-                  }
-            // Write table HTML
-            $(type).html(table);
+            }
+            else{
+              //Redirect to search if quick quote is invalid
+              if(qq)
+                redirect = true;
+              else
+                table += '<h5>There is no quote available for '+curStock+'</h5>';
+            }
           }
-          else if (type == '#history'){
-            curHistory = curStock;
+          else if (type === '#history'){
+            curHistory = term;
 
-            var table = '<h2>History</h2>'+
-                        '<h3>'+curStock+': '+curCompany+'</h3>';
+            table += '<h2>History</h2>'+
+                      '<h3>'+curHistory+': '+curCompany+'</h3>'+
+                      '<div class=buttons>'+
+                        '<button class="goSearchButton white">Search Results</button>'+
+                        '<button class="goQuoteButton white">Stock Quote</button>'+
+                      '</div><br></br>';
             if(response.data.length != 0){
+              curStock = curHistory;
               table += '<table class="table-fill">'+
                       '<thead>'+
                         '<tr>'+
@@ -286,22 +297,55 @@ function query(term, type){
             else{
               table += '<h5>There is no history available for '+curStock+'</h5>';
             }
-            // Write table HTML
-            $(type).html(table);
           }
         }
-        else if (Object.keys(response)[0] == 'error'){
-          var table = '<h3>'+term+'</h3>'+
-                      '<h5>'+response['error']+'</h5>';
-          $(type).html(table)
+        else if (response.hasOwnProperty('error')){
+          table += '<h3>'+term+'</h3>'+
+                    '<h5>'+response['error']+'</h5>';
         }
+        else if (qq)
+          redirect = true;
+
+        $(curSection).fadeOut().promise().done(function(){
+            if(!redirect){
+              //Write table HTML
+              $(type).html(table);
+              //Attach button click event handlers
+              if(type === '#search'){
+                $('.quoteButton').click(function(){
+                  curCompany = $(this).closest('tr').find('td:eq(0)').text()
+                  curStock = $(this).closest('tr').find('td:eq(1)').text()
+                  // Query with symbol and type
+                  query(curStock, '#quote');
+                });
+                $('.historyButton').click(function(){
+                  curCompany = $(this).closest('tr').find('td:eq(0)').text()
+                  curStock = $(this).closest('tr').find('td:eq(1)').text()
+                  query(curStock, '#history');
+                });
+              }
+              else if(type === '#quote'){
+                $('.goSearchButton').click(function(){curSearch && !qq?query(curSearch, '#search'):query(curStock, '#search');});
+                $('.goHistoryButton').click(function(){query(curStock, '#history');});
+              }
+              else if(type === '#history'){
+                $('.goSearchButton').click(function(){curSearch && !qq?query(curSearch, '#search'):query(curStock, '#search');});
+                $('.goQuoteButton').click(function(){query(curStock, '#quote');});
+              }
+            }
+        });
+        if(!redirect)
+          showSection(type);
+        else
+          query(term, '#search', true);
       },
       error: function(xhr, textStatus, errorThrown){
-         alert(textStatus + errorThrown);
+         console.log(textStatus + ' ' + errorThrown);
       }
     });
   }
-  showSection(type);
+  else
+    showSection(type);
 }
 
 
@@ -318,12 +362,13 @@ $(function(){
         $('#query').focus();
       });
       $('#navSearch').addClass('searching');
+      evalQQ();
     }
   });
   $('#navExit').click(function(){
     searching = false;
     showSection('#home');
-    $('#searchForm, #navExit').fadeOut().promise().done(function(){
+    $('#searchForm, #navExit, #qq').fadeOut().promise().done(function(){
       $('#title').fadeIn();
     })
     $('#navSearch').removeClass('searching');
@@ -336,4 +381,14 @@ $(function(){
     query($('#query').val(), '#search');
     return false;
   });
+  $('#qq').hover(function(){
+                  $(this).fadeTo(250, 1);
+                  $('#qq-tooltip').fadeTo(250, 1);
+                },
+                function(){
+                  $(this).fadeTo(250, 0.5);
+                  $('#qq-tooltip').fadeTo(250, 0).promise().done(function(){$('#qq-tooltip').hide();});
+                });
+  $('#qq').click(function(){query($('#query').val().toUpperCase(), '#quote', true);});
+  $('#query').keyup(function(){evalQQ();});
 });

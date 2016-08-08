@@ -21,9 +21,9 @@
     // Return connection error
     if ($mysqli->connect_errno) {
       // PROD
-      //$json['error'] = $mysqli->connect_errno;
+      $json['error'] = $mysqli->connect_errno;
       // DEBUGGING
-      $json['error'] = $mysqli->connect_error;
+      //$json['error'] = $mysqli->connect_error;
       exit(json_encode($json));
     }
 
@@ -32,18 +32,23 @@
       $query = "SELECT symName AS `name`,
                       symSymbol AS `symbol`
                 FROM symbols
-                WHERE symName LIKE '%{$term}%' OR symSymbol LIKE '%{$term}%'";
+                WHERE symName LIKE '%{$term}%' OR symSymbol LIKE '%{$term}%'
+                ORDER BY symName";
     else if($type == 'history')
-      $query ="SELECT qQuoteDateTime AS `date`,
+      $query ="SELECT symSymbol AS `symbol`,
+                      symName AS `name`,
+                      qQuoteDateTime AS `date`,
                       qLastSalePrice AS `last`,
                       qNetChangePrice AS `chng`,
                       qNetChangePct AS `pctchng`,
                       qShareVolumeQty AS `vol`
-              FROM quotes
+              FROM symbols
+              LEFT OUTER JOIN quotes ON symSymbol=qSymbol
               WHERE qSymbol='{$term}'
               ORDER BY qQuoteDateTime DESC";
     else if($type == 'quote')
-      $query = "SELECT symSymbol,
+      $query = "SELECT symSymbol AS `symbol`,
+                        symName AS `name`,
                         qQuoteDateTime AS `date`,
                         qLastSalePrice AS `last`,
                         qAskPrice  AS `ask`,

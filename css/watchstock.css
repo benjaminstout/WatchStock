@@ -11,28 +11,28 @@ h2 {
   text-align: center;
   font-size: 50px;
   width: 100%;
-  text-shadow: 1px 1px 6px #000;
+  text-shadow: 1px 1px 5px #000;
 }
 
 h3 {
   margin: 20px auto;
   font-size: 30px;
   width: 100%;
-  text-shadow: 1px 1px 6px #000;
+  text-shadow: 1px 1px 5px #000;
 }
 
 h4 {
   margin: 20px auto;
   font-size: 25px;
   width: 100%;
-  text-shadow: 1px 1px 6px #000;
+  text-shadow: 1px 1px 5px #000;
 }
 
 h5 {
   margin: 20px auto;
   font-size: 20px;
   width: 100%;
-  text-shadow: 1px 1px 6px #000;
+  text-shadow: 1px 1px 5px #000;
 }
 
 /*-----NAV STYLING-----*/
@@ -261,6 +261,36 @@ input[type=text]:focus, textarea:focus {
   opacity: 1;
 }
 
+.quick-quote {
+  cursor: pointer;
+  position: absolute;
+  margin-left: -moz-calc(81% + 40px);
+  margin-left: -webkit-calc(81% + 40px);
+  margin-left: -o-calc(81% + 40px);
+  margin-left: calc(81% + 40px);
+  top: 20px;
+  width: 45px;
+  z-index: 2;
+  display: none;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  display: none;
+  width: 120px;
+  background-color: #2a2a2a;
+  color: white;
+  text-align: center;
+  padding: 5px 0;
+  border-bottom-right-radius: : 6px;
+  border-bottom-left-radius: : 6px;
+  top: 70px;
+  margin-left: 81%;
+  font-size: 16px;
+  box-shadow: 0 1px 1px #000;
+}
+
 .nav-quote {
   cursor: pointer;
   position: fixed;
@@ -290,6 +320,7 @@ input[type=text]:focus, textarea:focus {
 .highlighted {
   opacity: 1.0;
 }
+
 
 /*------CONTENT STYLES-----*/
 .content {
@@ -336,10 +367,14 @@ button {
 }
 
 button.white {
-  background-color: white;
-  border: 3px;
-  margin: 0px 10px;
-  color: #2a2a2a;
+  border: 2px;
+  border-style: solid;
+  border-color: white;
+  padding: 4px;
+  box-shadow: none;
+  margin: 0px 20px;
+  color: white;
+  font-size: 18px;
 }
 
 button:hover {
@@ -348,9 +383,8 @@ button:hover {
 }
 
 button.white:hover {
-  background-color: transparent;
-  border-color: white;
-  color: white;
+  background-color: white;
+  color: #2a2a2a;
 }
 
 #history {
@@ -360,6 +394,7 @@ button.white:hover {
 #quote {
   display: none;
 }
+
 
 /*-----TABLE STYLES-----*/
 .table-fill {
@@ -382,9 +417,9 @@ th {
   border-bottom:4px solid #9c9c9c;
   border-right: 1px solid #3a3a3a;
   font-family: 'Poiret One', sans-serif;
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 100;
-  padding: 10px;
+  padding: 5px;
   text-align:left;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   vertical-align: middle;

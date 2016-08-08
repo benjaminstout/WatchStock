@@ -27,6 +27,8 @@
     <form id='searchForm' action='' method='get'>
       <input id='query' type='text' placeholder='GE, LNKD, Google...' class='search-field'>
     </form>
+    <img id='qq' src='img/qq.png' class='quick-quote'>
+    <span id="qq-tooltip" class="tooltip">QuickQuote</span>
   </div>
   <div id='startHere' class='start-here'>
     <img height='70' src='img/start-arrow.png' class='start-arrow'>
@@ -49,9 +51,11 @@
     <div id='search' class='container'>
     </div>
     <div id='history' class='container'>
+      <h2>History</h2>
       <h4>There's nothing here... yet. Try searching!</h4>
     </div>
     <div id='quote' class='container'>
+      <h2>Quote</h2>
       <h4>There's nothing here... yet. Try searching!</h4>
     </div>
   </div>
